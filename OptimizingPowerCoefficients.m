@@ -103,20 +103,20 @@ end
 % Plotting LoS Channel between users and UAVs
 for i = 1:noUAV
     for directUsers = 1:noUsers
-        plot3([xUAV(i) xUser(directUsers)], [yUAV(i) yUser(directUsers)],[zUAV(i) zUser(directUsers)], 'r-','linewidth', 1); drawnow
+        plot3([xUAV(i) xUser(directUsers)], [yUAV(i) yUser(directUsers)],[zUAV(i) zUser(directUsers)], 'r--','linewidth', 0.1); drawnow
     end
 end
 
 % Plotting LoS Channel between BSs and UAVs
 for i = 1:noUAV
     for directBS = 1:noBS
-        plot3([xUAV(i) xBS(directBS)], [yUAV(i) yBS(directBS)],[zUAV(i) zBS(directBS)], 'g-','linewidth', 1); drawnow
+        plot3([xUAV(i) xBS(directBS)], [yUAV(i) yBS(directBS)],[zUAV(i) zBS(directBS)], 'g--','linewidth', 0.1); drawnow
     end
 end
 
 % Plotting UAV default path
 for i = 1:noUAV
-    plot3([xUAV_S(i) xUAV_E(i)], [yUAV_S(i) yUAV_E(i)],[zUAV_S(i) zUAV_E(i)], 'y--','linewidth', 1); drawnow
+    plot3([xUAV_S(i) xUAV_E(i)], [yUAV_S(i) yUAV_E(i)],[zUAV_S(i) zUAV_E(i)], 'y--','linewidth', 2); drawnow
 end
 
 % 3D Plot labels
@@ -198,7 +198,7 @@ end
 % Assume Average Channel Power Gain = -60dB
 
 eta = 2;    % Path Loss Component
-b0 = db2pow(-60);  % Average channel power gain at a reference deistance d0 = 1m
+b0 = db2pow(0);  % Average channel power gain at a reference deistance d0 = 1m
 
 for i = 1:noUAV
     % Rician fading for UAVs and Users
@@ -240,13 +240,10 @@ end
 
 for i = 1:noUAV
     % Mean value of Rician fading for UAVs and Users
-    for m=1:noUsers
-        sort_mean_abs_h_UAV_Users(i,:) = sort(mean_abs_h_UAV_Users(i,:));
-    end
+    sort_mean_abs_h_UAV_Users(i,:) = sort(mean_abs_h_UAV_Users(i,:));
+
     % Mean value of Rician fading for UAVs and BSs
-    for m=1:noBS
-        sort_mean_abs_h_UAV_BS(i,:) = sort(mean_abs_h_UAV_BS(i,:));
-    end
+    sort_mean_abs_h_UAV_BS(i,:) = sort(mean_abs_h_UAV_BS(i,:));
 end
 
 for i = 1:noUAV
@@ -259,4 +256,12 @@ for i = 1:noUAV
         indexBS(i,m) = find(mean_abs_h_UAV_BS(i,:) == sort_mean_abs_h_UAV_BS(i,m));
     end
 end
+
+% BS Transmit power in dBm
+P_BS = 46;
+
+% BS Transmit power in linear scale
+p_BS = (10^-3)*db2pow(P_BS);
+
+
 
