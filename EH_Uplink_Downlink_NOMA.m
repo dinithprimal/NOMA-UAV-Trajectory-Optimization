@@ -32,6 +32,11 @@ LoS_Dis_UAV_BS1 = sqrt(g_d_BS1^2 + (abs(height_UAV-h_BS1))^2);
 LoS_Dis_UAV_BS2 = sqrt(g_d_BS2^2 + (abs(height_UAV-h_BS2))^2);
 LoS_Dis_UAV_BS3 = sqrt(g_d_BS3^2 + (abs(height_UAV-h_BS3))^2);
 
+% Los Distance between Users and UAV
+LoS_Dis_UAV_User1 = sqrt(g_d_User1^2 + height_UAV^2);
+LoS_Dis_UAV_User2 = sqrt(g_d_User2^2 + height_UAV^2);
+LoS_Dis_UAV_User3 = sqrt(g_d_User3^2 + height_UAV^2);
+
 % Angle UAV-BSs
 angle_UAV_BS1 = asin((abs(height_UAV-h_BS1))/LoS_Dis_UAV_BS1);
 angle_UAV_BS2 = asin((abs(height_UAV-h_BS2))/LoS_Dis_UAV_BS2);
