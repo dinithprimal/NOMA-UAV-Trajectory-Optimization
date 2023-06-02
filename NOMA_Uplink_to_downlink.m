@@ -1,11 +1,11 @@
 clc;
-clear all
-close all
+clear all;
+close all;
 
 % Ground Distances from UAV in meters
 g_d1 = 100;
-g_d2 = 500;
-g_d3 = 800;
+g_d2 = 300;
+g_d3 = 400;
 
 % BSs Heights
 h_BS1 = 40;
@@ -34,14 +34,23 @@ K_UAV_BS1 = A1*exp(A2*angle_UAV_BS1);
 K_UAV_BS2 = A1*exp(A2*angle_UAV_BS2);
 K_UAV_BS3 = A1*exp(A2*angle_UAV_BS3);
 
-% Rician Fading for Users and BSs
-
+% Number of bits
 N = 10^5;
-g = sqrt(1/2)*(randn(1,N)+1i*randn(1,N));
 
-g_UAV_BS1 = sqrt(K_UAV_BS1/(1+K_UAV_BS1))*g + sqrt(1/(1+K_UAV_BS1))*g;
-g_UAV_BS2 = sqrt(K_UAV_BS2/(1+K_UAV_BS2))*g + sqrt(1/(1+K_UAV_BS2))*g;
-g_UAV_BS3 = sqrt(K_UAV_BS3/(1+K_UAV_BS3))*g + sqrt(1/(1+K_UAV_BS3))*g;
+% Rician Fading for Users and BSs
+hLOS1 = exp(1i*2*pi*rand(1,N/2));
+hLOS2 = exp(1i*2*pi*rand(1,N/2));
+hLOS3 = exp(1i*2*pi*rand(1,N/2));
+
+hNLOS1 = sqrt(1/2)*(randn(1,N/2)+1i*randn(1,N/2));
+hNLOS2 = sqrt(1/2)*(randn(1,N/2)+1i*randn(1,N/2));
+hNLOS3 = sqrt(1/2)*(randn(1,N/2)+1i*randn(1,N/2));
+
+
+g_UAV_BS1 = sqrt(K_UAV_BS1/(1+K_UAV_BS1))*hLOS1 + sqrt(1/(1+K_UAV_BS1))*hNLOS1;
+g_UAV_BS2 = sqrt(K_UAV_BS2/(1+K_UAV_BS2))*hLOS2 + sqrt(1/(1+K_UAV_BS2))*hNLOS2;
+g_UAV_BS3 = sqrt(K_UAV_BS3/(1+K_UAV_BS3))*hLOS3 + sqrt(1/(1+K_UAV_BS3))*hNLOS3;
+
 
 % Avarage Channel Power Gain
 
@@ -71,35 +80,6 @@ abs_h_UAV_BS3 = (abs(h_UAV_BS3)).^2;
 Pt = 46;                    %in dBm
 pt = (10^-3)*db2pow(Pt);	%in linear scale
 
-B = 10^6;
-No = -174 + 10*log10(B);
-no = (10^-3)*db2pow(No);
+y_p = pt.*(abs_h_UAV_BS1+abs_h_UAV_BS2+abs_h_UAV_BS3);
 
-eff = 0.7;  %power harvesting efficiency
-
-sigma = 0:0.05:0.9;
-
-for u = 1:length(sigma)
-    % By Channel Power
-    C1 = B*log2(1 + (1-sigma(u))*pt.*abs_h_UAV_BS1./(no + (1-sigma(u))*pt.*(abs_h_UAV_BS2 + abs_h_UAV_BS3)));
-    C1_mean(u) = mean(C1);
-    
-    C2 = B*log2(1 + (1-sigma(u))*pt.*abs_h_UAV_BS2./(no + (1-sigma(u))*pt.*abs_h_UAV_BS3));
-    C2_mean(u) = mean(C2);
-    
-    C3 = B*log2(1 + (1-sigma(u))*pt.*abs_h_UAV_BS3./(no));
-    C3_mean(u) = mean(C3);
-    
-    ph = pt*(abs_h_UAV_BS1).*sigma(u)*eff;
-    ph_mean(u) = mean(ph);
-
-end
-
-figure;
-plot(sigma,C1_mean,'-^','linewidth',1); hold on; grid on;
-plot(sigma,C2_mean,'-^','linewidth',1);
-plot(sigma,C3_mean,'-^','linewidth',1);
-
-figure;
-plot(sigma,ph_mean,'-^','linewidth',1); hold on; grid on;
 

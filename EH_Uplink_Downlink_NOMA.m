@@ -111,20 +111,65 @@ abs_h_UAV_User1 = (abs(h_UAV_User1)).^2;
 abs_h_UAV_User2 = (abs(h_UAV_User2)).^2;
 abs_h_UAV_User3 = (abs(h_UAV_User3)).^2;
 
+% Power Coefficeint by Channel gains
+
+mean_abs_h_UAV_User1 = mean(abs_h_UAV_User1);
+mean_abs_h_UAV_User2 = mean(abs_h_UAV_User2);
+mean_abs_h_UAV_User3 = mean(abs_h_UAV_User3);
+
+powerCoef_in1 = 1 - (mean_abs_h_UAV_User1/(mean_abs_h_UAV_User1+mean_abs_h_UAV_User2+mean_abs_h_UAV_User3));
+powerCoef_in2 = 1 - (mean_abs_h_UAV_User2/(mean_abs_h_UAV_User1+mean_abs_h_UAV_User2+mean_abs_h_UAV_User3));
+powerCoef_in3 = 1 - (mean_abs_h_UAV_User3/(mean_abs_h_UAV_User1+mean_abs_h_UAV_User2+mean_abs_h_UAV_User3));
+    
+powerCoef1 = (powerCoef_in1/(powerCoef_in1+powerCoef_in2+powerCoef_in3));
+powerCoef2 = (powerCoef_in2/(powerCoef_in1+powerCoef_in2+powerCoef_in3));
+powerCoef3 = (powerCoef_in3/(powerCoef_in1+powerCoef_in2+powerCoef_in3));
+
+
+% kfmsekfms
 T = 1*10^-6;
 
 neta = 0.5;
 
-psy = 0.1:0.05:0.9;
-alpha = 0.1:0.05:0.9;
+B = 10^6;
+No = -174 + 10*log10(B);
+no = (10^-3)*db2pow(No);
 
-for i=length(psy)
-    for j = length(alpha)
+psy = 0.1:0.01:0.9;
+alpha = 0.1:0.01:0.9;
+
+for i=1:length(psy)
+    for j = 1:length(alpha)
     
-        P_H = psy(i)*neta*pt_BS.*(abs_h_UAV_BS1+abs_h_UAV_BS2+abs_h_UAV_BS3);
+        P_H = psy(i)*neta*pt_BS.*(abs_h_UAV_BS1+abs_h_UAV_BS2+abs_h_UAV_BS3) + psy(i)*neta*no;
         E_H = P_H*alpha(j)*T;
+        
+        pt = E_H/((1-alpha(j))*T);
+        
+        C1 = B*log2(1 + pt*powerCoef1.*abs_h_UAV_User1./(no));
+        C1_mean(i,j) = mean(C1);
+        
+        C2 = B*log2(1 + pt*powerCoef2.*abs_h_UAV_User2./(no + pt*powerCoef1.*abs_h_UAV_User2));
+        C2_mean(i,j) = mean(C2);
+        
+        C3 = B*log2(1 + pt*powerCoef3.*abs_h_UAV_User3./(no + pt*(powerCoef1 + powerCoef2).*abs_h_UAV_User3));
+        C3_mean(i,j) = mean(C3);
+        
+        %sum_rate(i,j) = C1_mean+C2_mean+C3_mean;
 
     end
 end
 
+%mesh(psy,alpha,sum_rate);
+figure;
+mesh(psy,alpha,C1_mean);
+figure;
+mesh(psy,alpha,C2_mean);
+figure;
+mesh(psy,alpha,C3_mean);
 
+%[X,Y] = meshgrid(psy,alpha) ;
+
+%surf(X,Y,sum_rate)
+%shading interp 
+%colorbar
