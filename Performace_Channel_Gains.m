@@ -10,7 +10,7 @@ enHeight = 320;             % Simulation Environment Height (Z axis)
 maxHeighUAV = 300;          % Maximum Height of UAV
 minHeighUAV = 150;           % Minimum Height of UAV
 noUsers = 3;                % Number of Users
-%noBS = 3;                   % Number of Base Sations
+noBS = 3;                   % Number of Base Sations
 noUAV = 1;                  % Number of UAVs
 
 %% Users, Base Sataions and UAV Position
@@ -147,11 +147,18 @@ for j = enLength:-100:0
             
             g_UAV_User(i,m) = sqrt(K_UAV_User(i,m)/(1+K_UAV_User(i,m)))*g + sqrt(1/(1+K_UAV_User(i,m)))*g;
             
-            h_UAV_Users(i,m) = sqrt(pow_LoS)*g_UAV_User(i,m);
+            h_UAV_Users(index,i,m) = sqrt(pow_LoS)*g_UAV_User(i,m);
             
-            h_UAV_Users_dB(index,i,m) = pow2db(abs(h_UAV_Users(i,m))^2);
-            
+            h_UAV_Users_dB(index,i,m) = pow2db(abs(h_UAV_Users(index,i,m))^2);
+           
         end
+        
+        % Power coefficeints calculation
+        [pow_coef_array_ch(index,:), pow_coef_array_fr(index,:)] = findPowCoeff(abs(h_UAV_Users(index,i,:)),noUsers);
+        
+        % Achievable Rate Calculations
+        [achievableRate_ch(index,:), achievableRate_fr(index,:)] = findAchievableRate(h_UAV_Users(index,i,:),pow_coef_array_ch(index,:),pow_coef_array_fr(index,:),noUsers);
+        
     end
     index = index +1;
 end
@@ -190,4 +197,18 @@ plot(steps,h_UAV_Users_dB(:,1,3),'--^','linewidth', 1);
 xlim([1 21])
 %ylim([0 1])
 legend('U 1', 'U 2', 'U 3', 'U 1 R', 'U 2 R', 'U 3 R');
+grid on;
+
+figure;
+plot(steps,achievableRate_ch(:,1),'*-','linewidth', 1);hold on;
+plot(steps,achievableRate_ch(:,2),'*-','linewidth', 1);
+plot(steps,achievableRate_ch(:,3),'*-','linewidth', 1);
+
+plot(steps,achievableRate_fr(:,1),'^-','linewidth', 1);hold on;
+plot(steps,achievableRate_fr(:,2),'^-','linewidth', 1);
+plot(steps,achievableRate_fr(:,3),'^-','linewidth', 1);
+
+xlim([1 21])
+%ylim([0 1])
+legend('U 1', 'U 2', 'U 3','U 1 fr', 'U 2 fr', 'U 3 fr');
 grid on;
