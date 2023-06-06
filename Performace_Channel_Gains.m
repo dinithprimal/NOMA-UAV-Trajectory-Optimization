@@ -215,126 +215,280 @@ for j = enLength:-100:0
         % Achievable Rate Calculations for Users in SWIPT model
         [achievableRate_ch_SWIPT(index,:), achievableRate_fr_SWIPT(index,:)] = findAchievableRate_SWIPT(h_UAV_Users(index,i,:),h_UAV_BS(index,i,:),pow_coef_array_ch(index,:),pow_coef_array_fr(index,:),noUsers);
         
+        minRate = min(achievableRate_ch(index,:));
+        if index>1 && index<21
+            updatedPosition = positionUpdate_PSO(xUAV(i),yUAV(i),zUAV(i),minRate,noUsers,xUser,yUser);
+            up_xUAV(index,i) = xUAV(i) + updatedPosition.position(1);
+            up_zUAV(index,i) = zUAV(i) + updatedPosition.position(2);
+            up_yUAV(index,i) = yUAV(i);
+        else
+            up_xUAV(index,i) = xUAV(i);
+            up_yUAV(index,i) = yUAV(i);
+            up_zUAV(index,i) = zUAV(i);
+        end
+        plot3(up_xUAV(index,i),  up_yUAV(index,i),  up_zUAV(index,i), 'bh','linewidth', 1);hold on;
+        
+        if index>1 
+            plot3([up_xUAV(index-1,i) up_xUAV(index,i)], [up_yUAV(index-1,i) up_yUAV(index,i)],[up_zUAV(index-1,i) up_zUAV(index,i)], 'g:','linewidth', 2); drawnow
+        end
+       % updatedPosition.minRate
+        % LoS distance between UAVs and BSs
+        for bm=1:noBS
+            groundDisUAV_BS_Up(i,bm) = sqrt((up_xUAV(index,i)-xBS(bm))^2 + (up_yUAV(index,i)-yBS(bm))^2);
+            DisUAV_BS_Up(i,bm) = sqrt(groundDisUAV_BS_Up(i,bm)^2 + (zBS(bm)-up_zUAV(index,i))^2);
+            
+            % Elavation Angle in radiant between UAVs and Users
+            angleUAV_BS_Up(i,bm) = atan(abs(zBS(bm)-up_zUAV(index,i))/groundDisUAV_BS_Up(i,bm))*(180/pi);
+            
+            PLoS_BS_Up(index,i,bm) = 1/(1+(10*exp(-0.6*(angleUAV_BS_Up(i,bm)-10))));
+            
+            pow_LoS_BS_Up = b_0*(DisUAV_BS_Up(i,bm)^(-eta));
+            pow_NLoS_BS_Up = k*b_0*(DisUAV_BS_Up(i,bm)^(-eta));
+            Ch_pow_LoS_BS_Up(index,i,bm) = pow2db(pow_LoS_BS_Up); 
+            Ch_pow_NLoS_BS_Up(index,i,bm) = pow2db(pow_NLoS_BS_Up);
+            
+            % Expected Path Loss Channel gain
+            E_bd_BS_Up = PLoS_BS_Up(index,i,bm)*pow_LoS_BS_Up + (1 - PLoS_BS_Up(index,i,bm))*pow_NLoS_BS_Up;
+            E_bd_dB_BS_Up(index,i,bm) = pow2db(E_bd_BS_Up); % in dB
+            
+            % Angle depend rician factor
+            K_UAV_BS_Up(i,bm) = A1*exp(A2*angleUAV_BS_Up(i,bm)*(pi/180));
+            
+            g_UAV_BS_Up(i,bm) = sqrt(K_UAV_BS_Up(i,bm)/(1+K_UAV_BS_Up(i,bm)))*g + sqrt(1/(1+K_UAV_BS_Up(i,bm)))*g;
+            
+            h_UAV_BS_Up(index,i,bm) = sqrt(pow_LoS_BS_Up)*g_UAV_BS_Up(i,bm);
+            
+            h_UAV_BS_dB_Up(index,i,bm) = pow2db(abs(h_UAV_BS_Up(index,i,bm))^2);
+            
+        end
+        
+        % LoS distance between UAVs and Users
+        for m=1:noUsers
+            groundDisUAV_User_Up(i,m) = sqrt((up_xUAV(index,i)-xUser(m))^2 + (up_yUAV(index,i)-yUser(m))^2);
+            DisUAV_User_Up(i,m) = sqrt(groundDisUAV_User_Up(i,m)^2 + up_zUAV(index,i)^2);
+            
+            % Elavation Angle in radiant between UAVs and Users
+            angleUAV_User_Up(i,m) = atan(up_zUAV(index,i)/groundDisUAV_User_Up(i,m))*(180/pi);
+            
+            
+            PLoS_Up(index,i,m) = 1/(1+(10*exp(-0.6*(angleUAV_User_Up(i,m)-10))));
+            
+            pow_LoS_Up = b_0*(DisUAV_User_Up(i,m)^(-eta));
+            pow_NLoS_Up = k*b_0*(DisUAV_User_Up(i,m)^(-eta));
+            Ch_pow_LoS_Up(index,i,m) = pow2db(pow_LoS_Up); 
+            Ch_pow_NLoS_Up(index,i,m) = pow2db(pow_NLoS_Up);
+            
+            % Expected Path Loss Channel gain
+            E_bd_Up = PLoS_Up(index,i,m)*pow_LoS_Up + (1 - PLoS_Up(index,i,m))*pow_NLoS_Up;
+            E_bd_dB_Up(index,i,m) = pow2db(E_bd_Up); % in dB
+            
+            
+            % Angle depend rician factor
+            K_UAV_User_Up(i,m) = A1*exp(A2*angleUAV_User_Up(i,m)*(pi/180));
+            
+            g_UAV_User_Up(i,m) = sqrt(K_UAV_User_Up(i,m)/(1+K_UAV_User_Up(i,m)))*g + sqrt(1/(1+K_UAV_User_Up(i,m)))*g;
+            
+            h_UAV_Users_Up(index,i,m) = sqrt(pow_LoS_Up)*g_UAV_User_Up(i,m);
+            
+            h_UAV_Users_dB_Up(index,i,m) = pow2db(abs(h_UAV_Users_Up(index,i,m))^2);
+           
+        end
+        % Power coefficeints calculation for users
+        [pow_coef_array_ch_Up(index,:), pow_coef_array_fr_Up(index,:)] = findPowCoeff(abs(h_UAV_Users_Up(index,i,:)),noUsers);
+        
+        % Achievable Rate Calculations for Users
+        [achievableRate_ch_Up(index,:), achievableRate_fr_Up(index,:)] = findAchievableRate(h_UAV_Users_Up(index,i,:),pow_coef_array_ch_Up(index,:),pow_coef_array_fr_Up(index,:),noUsers);
+        
+        % Achievable Rate Calculations for BSs
+        achievableRate_BS_Up(index,:) = findAchievableRate_BS(h_UAV_BS_Up(index,i,:),noBS);
+        
+        % Achievable Rate Calculations for Users in SWIPT model
+        [achievableRate_ch_SWIPT_Up(index,:), achievableRate_fr_SWIPT_Up(index,:)] = findAchievableRate_SWIPT(h_UAV_Users_Up(index,i,:),h_UAV_BS_Up(index,i,:),pow_coef_array_ch_Up(index,:),pow_coef_array_fr_Up(index,:),noUsers);
+        
+    
+    
     end
     index = index +1;
 end
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PLoS for Users
 steps = 1:21;
 figure;
-plot(steps,PLoS(:,1,1),'linewidth', 1);hold on;
-plot(steps,PLoS(:,1,2),'linewidth', 1);
-plot(steps,PLoS(:,1,3),'linewidth', 1);
+plot(steps,PLoS(:,1,1),'m-','linewidth', 1);hold on;
+plot(steps,PLoS(:,1,2),'g-','linewidth', 1);
+plot(steps,PLoS(:,1,3),'c-','linewidth', 1);
+
+title('Line of Sight Probablility between UAV and GUs in each Step')
+xlabel('Steps')
+ylabel('Probability')
 xlim([1 21])
 ylim([0 1])
-legend('U 1', 'U 2', 'U 3');
+legend('User 1', 'User 2', 'User 3');
 grid on;
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PLoS for BSs
 figure;
-plot(steps,PLoS_BS(:,1,1),'linewidth', 1);hold on;
-plot(steps,PLoS_BS(:,1,2),'linewidth', 1);
-plot(steps,PLoS_BS(:,1,3),'linewidth', 1);
+plot(steps,PLoS_BS(:,1,1),'-y','linewidth', 1);hold on;
+plot(steps,PLoS_BS(:,1,2),'-r','linewidth', 1);
+plot(steps,PLoS_BS(:,1,3),'-b','linewidth', 1);
+
 xlim([1 21])
 ylim([0 0.2])
+title('Line of Sight Probablility between UAV and BSs in each Step')
+xlabel('Steps')
+ylabel('Probability')
 legend('BS 1', 'BS 2', 'BS 3');
 grid on;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Channel power for users
 figure;
-plot(steps,Ch_pow_LoS(:,1,1),'linewidth', 1);hold on;
-plot(steps,Ch_pow_LoS(:,1,2),'linewidth', 1);
-plot(steps,Ch_pow_LoS(:,1,3),'linewidth', 1);
-plot(steps,Ch_pow_NLoS(:,1,1),'linewidth', 1);hold on;
-plot(steps,Ch_pow_NLoS(:,1,2),'linewidth', 1);
-plot(steps,Ch_pow_NLoS(:,1,3),'linewidth', 1);
+plot(steps,Ch_pow_LoS(:,1,1),'m--^','linewidth', 1);hold on;
+plot(steps,Ch_pow_LoS(:,1,2),'g--^','linewidth', 1);
+plot(steps,Ch_pow_LoS(:,1,3),'c--^','linewidth', 1);
+
+plot(steps,Ch_pow_NLoS(:,1,1),'b-^','linewidth', 1);hold on;
+plot(steps,Ch_pow_NLoS(:,1,2),'r-^','linewidth', 1);
+plot(steps,Ch_pow_NLoS(:,1,3),'k-^','linewidth', 1);
+
+title('Line of Sight and Non-Line of Sight Channel Power between UAV and GUs in each Step')
+xlabel('Steps')
+ylabel('Channel power in dB')
 xlim([1 21])
 %ylim([0 1])
-legend('U 1', 'U 2', 'U 3', 'U 1 N', 'U 2 N', 'U 3 N');
+legend('User 1', 'User 2', 'User 3', 'User 1 (Optimized)', 'User 2 (Optimized)', 'User 3 (Optimized)');
 grid on;
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PLoS Channel power for BSs
 figure;
-plot(steps,Ch_pow_LoS_BS(:,1,1),'linewidth', 1);hold on;
-plot(steps,Ch_pow_LoS_BS(:,1,2),'linewidth', 1);
-plot(steps,Ch_pow_LoS_BS(:,1,3),'linewidth', 1);
-plot(steps,Ch_pow_NLoS_BS(:,1,1),'linewidth', 1);hold on;
-plot(steps,Ch_pow_NLoS_BS(:,1,2),'linewidth', 1);
-plot(steps,Ch_pow_NLoS_BS(:,1,3),'linewidth', 1);
+plot(steps,Ch_pow_LoS_BS(:,1,1),'m--^','linewidth', 1);hold on;
+plot(steps,Ch_pow_LoS_BS(:,1,2),'g--^','linewidth', 1);
+plot(steps,Ch_pow_LoS_BS(:,1,3),'c--^','linewidth', 1);
+
+plot(steps,Ch_pow_NLoS_BS(:,1,1),'b-^','linewidth', 1);hold on;
+plot(steps,Ch_pow_NLoS_BS(:,1,2),'r-^','linewidth', 1);
+plot(steps,Ch_pow_NLoS_BS(:,1,3),'k-^','linewidth', 1);
+
+title('Line of Sight and Non-Line of Sight Channel Power between UAV and BSs in each Step')
+xlabel('Steps')
+ylabel('Channel power in dB')
 xlim([1 21])
 %ylim([0 1])
-legend('BS 1', 'BS 2', 'BS 3', 'BS 1 N', 'BS 2 N', 'BS 3 N');
+legend('BS 1 (LoS)', 'BS 2 (LoS)', 'BS 3 (LoS)', 'BS 1 (LoS)', 'BS 2 (LoS)', 'BS 3 (LoS)');
 grid on;
+
 
 % Channel power Users
 figure;
-plot(steps,E_bd_dB(:,1,1),'linewidth', 1);hold on;
-plot(steps,E_bd_dB(:,1,2),'linewidth', 1);
-plot(steps,E_bd_dB(:,1,3),'linewidth', 1);
+plot(steps,E_bd_dB(:,1,1),'m-^','linewidth', 1);hold on;
+plot(steps,E_bd_dB(:,1,2),'g-^','linewidth', 1);
+plot(steps,E_bd_dB(:,1,3),'c-^','linewidth', 1);
 
-plot(steps,h_UAV_Users_dB(:,1,1),'--^','linewidth', 1);hold on;
-plot(steps,h_UAV_Users_dB(:,1,2),'--^','linewidth', 1);
-plot(steps,h_UAV_Users_dB(:,1,3),'--^','linewidth', 1);
+plot(steps,h_UAV_Users_dB(:,1,1),'b--^','linewidth', 1);hold on;
+plot(steps,h_UAV_Users_dB(:,1,2),'r--^','linewidth', 1);
+plot(steps,h_UAV_Users_dB(:,1,3),'k--^','linewidth', 1);
 
+title('Path Loss Channel Model Power and Rician Channel Model Power between UAV and GUs in each Step')
+xlabel('Steps')
+ylabel('Channel power in dB')
 xlim([1 21])
 %ylim([0 1])
-legend('U 1', 'U 2', 'U 3', 'U 1 R', 'U 2 R', 'U 3 R');
+legend('User 1 (Path Loss Model)', 'User 2 (Path Loss Model)', 'User 3 (Path Loss Model)', 'User 1 (Rician Channel Model)', 'User 2 (Rician Channel Model)', 'User 3 (Rician Channel Model)');
 grid on;
 
 % Channel power BSs
 figure;
-plot(steps,E_bd_dB_BS(:,1,1),'linewidth', 1);hold on;
-plot(steps,E_bd_dB_BS(:,1,2),'linewidth', 1);
-plot(steps,E_bd_dB_BS(:,1,3),'linewidth', 1);
+plot(steps,E_bd_dB_BS(:,1,1),'m--^','linewidth', 1);hold on;
+plot(steps,E_bd_dB_BS(:,1,2),'g--^','linewidth', 1);
+plot(steps,E_bd_dB_BS(:,1,3),'c--^','linewidth', 1);
 
-plot(steps,h_UAV_BS_dB(:,1,1),'--^','linewidth', 1);hold on;
-plot(steps,h_UAV_BS_dB(:,1,2),'--^','linewidth', 1);
-plot(steps,h_UAV_BS_dB(:,1,3),'--^','linewidth', 1);
+plot(steps,h_UAV_BS_dB(:,1,1),'b-^','linewidth', 1);hold on;
+plot(steps,h_UAV_BS_dB(:,1,2),'r-^','linewidth', 1);
+plot(steps,h_UAV_BS_dB(:,1,3),'k-^','linewidth', 1);
 
+title('Path Loss Channel Model Power and Rician Channel Model Power between UAV and BSs in each Step')
+xlabel('Steps')
+ylabel('Channel power in dB')
 xlim([1 21])
 %ylim([0 1])
-legend('BS 1', 'BS 2', 'BS 3', 'BS 1 R', 'BS 2 R', 'BS 3 R');
+legend('BS 1 (Path Loss Model)', 'BS 2 (Path Loss Model)', 'BS 3 (Path Loss Model)', 'BS 1 (Rician Channel Model)', 'BS 2 (Rician Channel Model)', 'BS 3 (Rician Channel Model)');
 grid on;
+
 
 % Achievable rate for Users
 figure;
-plot(steps,achievableRate_ch(:,1),'*-','linewidth', 1);hold on;
-plot(steps,achievableRate_ch(:,2),'*-','linewidth', 1);
-plot(steps,achievableRate_ch(:,3),'*-','linewidth', 1);
+plot(steps,achievableRate_ch(:,1),'m^--','linewidth', 1);hold on;
+plot(steps,achievableRate_ch(:,2),'g^--','linewidth', 1);
+plot(steps,achievableRate_ch(:,3),'c^--','linewidth', 1);
 
-plot(steps,achievableRate_fr(:,1),'^-','linewidth', 1);hold on;
-plot(steps,achievableRate_fr(:,2),'^-','linewidth', 1);
-plot(steps,achievableRate_fr(:,3),'^-','linewidth', 1);
+plot(steps,achievableRate_ch_Up(:,1),'b-^','linewidth', 1);hold on;
+plot(steps,achievableRate_ch_Up(:,2),'r-^','linewidth', 1);
+plot(steps,achievableRate_ch_Up(:,3),'k-^','linewidth', 1);
 
+title('Achievable Rate for GUs in each Step (With Channel based Power Coefficeints)')
 xlim([1 21])
 %ylim([0 1])
-legend('U 1', 'U 2', 'U 3','U 1 fr', 'U 2 fr', 'U 3 fr');
+legend('User 1', 'User 2', 'User 3','User 1 (Optimized)', 'User 2 (Optimized)', 'User 3 (Optimized)');
+grid on;
+
+
+figure
+plot(steps,achievableRate_fr(:,1),'m^--','linewidth', 1);hold on;
+plot(steps,achievableRate_fr(:,2),'g^--','linewidth', 1);
+plot(steps,achievableRate_fr(:,3),'c^--','linewidth', 1);
+
+plot(steps,achievableRate_fr_Up(:,1),'b^-','linewidth', 1);hold on;
+plot(steps,achievableRate_fr_Up(:,2),'r^-','linewidth', 1);
+plot(steps,achievableRate_fr_Up(:,3),'k^-','linewidth', 1);
+
+title('Achievable Rate for GUs in each Step (With Fraction value based Power Coefficeints)')
+xlim([1 21])
+%ylim([0 1])
+legend('User 1', 'User 2', 'User 3','User 1 (Optimized)', 'User 2 (Optimized)', 'User 3 (Optimized)');
 grid on;
 
 
 % Achievable rate for BSs
-figure;
-plot(steps,achievableRate_BS(:,1),'*-','linewidth', 1);hold on;
-plot(steps,achievableRate_BS(:,2),'*-','linewidth', 1);
-plot(steps,achievableRate_BS(:,3),'*-','linewidth', 1);
-
-xlim([1 21])
-%ylim([0 1])
-legend('BS 1', 'BS 2', 'BS 3');
-grid on;
+% figure;
+% plot(steps,achievableRate_BS(:,1),'*--','linewidth', 1);hold on;
+% plot(steps,achievableRate_BS(:,2),'*--','linewidth', 1);
+% plot(steps,achievableRate_BS(:,3),'*--','linewidth', 1);
+% 
+% plot(steps,achievableRate_BS_Up(:,1),'*-','linewidth', 1);hold on;
+% plot(steps,achievableRate_BS_Up(:,2),'*-','linewidth', 1);
+% plot(steps,achievableRate_BS_Up(:,3),'*-','linewidth', 1);
+% 
+% xlim([1 21])
+% %ylim([0 1])
+% legend('BS 1', 'BS 2', 'BS 3','BS 1 Up', 'BS 2 Up', 'BS 3 Up');
+% grid on;
 
 
 % Achievable rate for Users SWIPT Model
 figure;
-plot(steps,achievableRate_ch_SWIPT(:,1),'*-','linewidth', 1);hold on;
-plot(steps,achievableRate_ch_SWIPT(:,2),'*-','linewidth', 1);
-plot(steps,achievableRate_ch_SWIPT(:,3),'*-','linewidth', 1);
+plot(steps,achievableRate_ch_SWIPT(:,1),'*--','linewidth', 1);hold on;
+plot(steps,achievableRate_ch_SWIPT(:,2),'*--','linewidth', 1);
+plot(steps,achievableRate_ch_SWIPT(:,3),'*--','linewidth', 1);
 
-plot(steps,achievableRate_fr_SWIPT(:,1),'^-','linewidth', 1);hold on;
-plot(steps,achievableRate_fr_SWIPT(:,2),'^-','linewidth', 1);
-plot(steps,achievableRate_fr_SWIPT(:,3),'^-','linewidth', 1);
+plot(steps,achievableRate_ch_SWIPT_Up(:,1),'*-','linewidth', 1);hold on;
+plot(steps,achievableRate_ch_SWIPT_Up(:,2),'*-','linewidth', 1);
+plot(steps,achievableRate_ch_SWIPT_Up(:,3),'*-','linewidth', 1);
+
+plot(steps,achievableRate_fr_SWIPT(:,1),'^--','linewidth', 1);hold on;
+plot(steps,achievableRate_fr_SWIPT(:,2),'^--','linewidth', 1);
+plot(steps,achievableRate_fr_SWIPT(:,3),'^--','linewidth', 1);
+
+plot(steps,achievableRate_fr_SWIPT_Up(:,1),'^-','linewidth', 1);hold on;
+plot(steps,achievableRate_fr_SWIPT_Up(:,2),'^-','linewidth', 1);
+plot(steps,achievableRate_fr_SWIPT_Up(:,3),'^-','linewidth', 1);
 
 xlim([1 21])
 %ylim([0 1])
-legend('U 1', 'U 2', 'U 3','U 1 fr', 'U 2 fr', 'U 3 fr');
+legend('U 1', 'U 2', 'U 3','U 1 up', 'U 2 up', 'U 3 up','U 1 fr', 'U 2 fr', 'U 3 fr','U 1 fr Up', 'U 2 fr up', 'U 3 fr up');
 grid on;
