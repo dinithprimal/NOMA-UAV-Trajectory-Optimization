@@ -1,4 +1,4 @@
-function [minZ, z] = objective_function_positionUpdate_3D(x,xUAV,yUAV,zUAV,noUsers,xUser,yUser,minRate)
+function [minZ, z] = objective_function_positionUpdate_3D(x,xUAV,yUAV,zUAV,noUsers,xUser,yUser,minRate,g)
 
     %% Information for path loss model
 
@@ -17,7 +17,7 @@ function [minZ, z] = objective_function_positionUpdate_3D(x,xUAV,yUAV,zUAV,noUse
     A2 = (2/pi)*log((db2pow(K_max))/A1);
 
     %N = 10^5;
-    g = sqrt(1/2)*(randn(1,1)+1i*randn(1,1));
+    %g = sqrt(1/2)*(randn(1,1)+1i*randn(1,1));
     
     p = 0;
     %% 
@@ -51,8 +51,11 @@ function [minZ, z] = objective_function_positionUpdate_3D(x,xUAV,yUAV,zUAV,noUse
     if minRate>minZ
         p = 1;
         minZ = minRate;
+        z = minRate;
+    else
+        z = minZ;
     end
-    z = minZ*(1-p);
+   
     
 
 end

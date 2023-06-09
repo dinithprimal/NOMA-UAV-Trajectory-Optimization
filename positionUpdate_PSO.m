@@ -1,11 +1,11 @@
-function updatedPosition = positionUpdate_PSO(xUAV,yUAV,zUAV,minRat,noUsers,xUser,yUser)
+function updatedPosition = positionUpdate_PSO(xUAV,yUAV,zUAV,minRat,noUsers,xUser,yUser,g)
     
     %rates = zeros(1,noUsers);
     
     %% Problem
     nVar = 2;
-    varMin = [-200 -50];
-    varMax = [200 100];
+    varMin = [-500 -100];
+    varMax = [500 200];
     
     %% PSO parameters
     
@@ -18,7 +18,7 @@ function updatedPosition = positionUpdate_PSO(xUAV,yUAV,zUAV,minRat,noUsers,xUse
     chi = 2*kappa/abs(2-phi-sqrt(phi^2-4*phi));
     
     maxIter = 5000;
-    nPop = 10;
+    nPop = 50;
     w = chi;
     d = 0.99;
     c1 = chi*phi1;
@@ -41,11 +41,11 @@ function updatedPosition = positionUpdate_PSO(xUAV,yUAV,zUAV,minRat,noUsers,xUse
         end
         x(i).velocity = zeros([1 nVar]);    % Initial velocity
         [minZ, x(i).fitness] = objective_function_positionUpdate_3D(x(i).position,...
-            xUAV,yUAV,zUAV,noUsers,xUser,yUser,minRate);
+            xUAV,yUAV,zUAV,noUsers,xUser,yUser,minRate,g);
         
-       % if minZ > minRate
+       if minZ > minRate
             minRate = minZ;
-       % end
+       end
         
         x(i).best.position = x(i).position;     % Update the local best
         x(i).best.fitness = x(i).fitness;       % Update the local best
@@ -54,7 +54,8 @@ function updatedPosition = positionUpdate_PSO(xUAV,yUAV,zUAV,minRat,noUsers,xUse
         end
     end
     
-    
+    B = zeros(maxIter,1);   % save the best fitness in each iteration
+    C = zeros(maxIter, nVar);
     %% Main Program
     for j = 1:maxIter
         for i = 1:nPop
@@ -70,11 +71,11 @@ function updatedPosition = positionUpdate_PSO(xUAV,yUAV,zUAV,minRat,noUsers,xUse
                 end
             end
             [minZ, x(i).fitness] = objective_function_positionUpdate_3D(x(i).position,...
-                xUAV,yUAV,zUAV,noUsers,xUser,yUser,minRate);
+                xUAV,yUAV,zUAV,noUsers,xUser,yUser,minRate,g);
             
-           % if minZ > minRate
+           if minZ > minRate
                 minRate = minZ;
-            %end
+           end
             
             if x(i).fitness > x(i).best.fitness
                 x(i).best.position = x(i).position;
@@ -85,6 +86,13 @@ function updatedPosition = positionUpdate_PSO(xUAV,yUAV,zUAV,minRat,noUsers,xUse
             end
         end
         w = w*d;        % update the damping ratio
+        
+        %save the best fitness
+        B(j) = global_best.fitness;
+        C(j,:) = global_best.position;
+        %disp(['Iteration ' num2str(j) '; Best fitness = ' num2str(B(j)) '; Optimal solution = ' num2str(C(j,:))]);
+        %figure;
+           % plot(B(1:j,1),'r.'); hold on; drawnow
         
     end
     %% Output

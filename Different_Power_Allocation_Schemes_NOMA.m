@@ -145,6 +145,6 @@ plot(Pt,C1_mean_vf,'-pentagram','linewidth',1); hold on; grid on;
 plot(Pt,C2_mean_vf,'-pentagram','linewidth',1);
 plot(Pt,C3_mean_vf,'-pentagram','linewidth',1);
 
-legend({'NOMA User1','NOMA User2','NOMA User3','NOMA User1 f','NOMA User2 f','NOMA User3 f','NOMA User1 vf','NOMA User2 vf','NOMA User3 vf'},'location','northwest');
+legend({'User1 - Near User (Channel gain based power coefficent allocation)','User2 - Middle User (Channel gain based power coefficent allocation)','User3 - Far User (Channel gain based power coefficient allocation)','User1 - Near User (Fraction power coefficeint allocation)','User2 - Middle User (Fraction power coefficeint allocation)','User3 - Far User (Fraction power coefficeint allocation)','User1 - Near User (Fixed power coefficeint allocation)','User2 - Middle User (Fixed power coefficeint allocation)','NOMA User3 - Far User (Fixed power coefficeint allocation)'},'location','northwest');
 
 

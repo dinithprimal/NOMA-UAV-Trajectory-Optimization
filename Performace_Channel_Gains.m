@@ -4,11 +4,11 @@ close all;
 
 %% Simulation Environment
 
-enWidth = 2000;             % Simulation Environment Width (X axis)
-enLength = 2000;            % Simulation Environment Length (Y axis)
+enWidth = 1000;             % Simulation Environment Width (X axis)
+enLength = 1000;            % Simulation Environment Length (Y axis)
 enHeight = 320;             % Simulation Environment Height (Z axis)
 maxHeighUAV = 300;          % Maximum Height of UAV
-minHeighUAV = 150;           % Minimum Height of UAV
+minHeighUAV = 50;           % Minimum Height of UAV
 noUsers = 3;                % Number of Users
 noBS = 3;                   % Number of Base Sations
 noUAV = 1;                  % Number of UAVs
@@ -17,28 +17,28 @@ noUAV = 1;                  % Number of UAVs
 
 % UAV Position
 for i=1:noUAV
-    xUAV_S(i) = 1000;       % UAV position in X axis
+    xUAV_S(i) = 500;       % UAV position in X axis
     yUAV_S(i) = enLength;      % UAV position in Y axis
     zUAV_S(i) = 200;%randi([minHeighUAV,maxHeighUAV]);   % UAV position in Z axis
 end
 
 % UAV End Position
 for i=1:noUAV
-    xUAV_E(i) = 1000;       % UAV position in X axis
+    xUAV_E(i) = 500;       % UAV position in X axis
     yUAV_E(i) = 0;      % UAV position in Y axis
     zUAV_E(i) = 200;%randi([minHeighUAV,maxHeighUAV]);   % UAV position in Z axis
 end
 
 % UAV Position
 for i=1:noUAV
-    xUAV(i) = 1000;       % UAV position in X axis
+    xUAV(i) = 500;       % UAV position in X axis
     yUAV(i) = enLength;      % UAV position in Y axis
     zUAV(i) = zUAV_S(i);   % UAV position in Z axis
 end
 
 % BS positions
-xBS = [2000,0,2000];
-yBS = [2000,1000,0];
+xBS = [1000,0,1000];
+yBS = [1000,500,0];
 zBS = [20, 30, 25];
 
 % Users' posision
@@ -52,27 +52,27 @@ end
 
 % User plotting
 figure,
-userPlot = plot3(xUser,yUser,zUser,'r*','linewidth',3); hold on;
+userPlot = plot3(xUser,yUser,zUser,'k*','linewidth',3); hold on;
 for o=1:noUsers
     textUsers(o) = text(xUser(o)-10,yUser(o)-10,zUser(o)+10,['U',num2str(o)],'FontSize', 8);
     textUsAngle(o) = text(xUser(o)+10,yUser(o)+10,['U_{\theta_{',num2str(o),'}}'],'FontSize', 6);
 end
 
 % UAVs Plotting
-plot3(xUAV_S, yUAV_S, zUAV_S, 'bh','linewidth', 3);
+plot3(xUAV_S, yUAV_S, zUAV_S, 'kh','linewidth', 3);
 for o=1:noUAV
     text(xUAV_S(o) + 20, yUAV_S(o) + 10, zUAV_S(o) + 10,['UAV',num2str(o),' Start Position']);
 end
 
-plot3(xUAV_E, yUAV_E, zUAV_E, 'bh','linewidth', 3);
+plot3(xUAV_E, yUAV_E, zUAV_E, 'kh','linewidth', 3);
 for o=1:noUAV
     text(xUAV_E(o) + 20, yUAV_E(o) + 10, zUAV_E(o) + 10,['UAV',num2str(o),' End Position']);
 end
 
 % BSs Plotting
-plot3(xBS, yBS, zBS, 'b*','linewidth', 3);
+plot3(xBS, yBS, zBS, 'k^','linewidth', 3);
 for o=1:noBS
-    plot3([xBS(o) xBS(o)], [yBS(o) yBS(o)],[zBS(o) 0], 'bl-','linewidth', 1); drawnow
+    plot3([xBS(o) xBS(o)], [yBS(o) yBS(o)],[zBS(o) 0], 'k-','linewidth', 1); drawnow
     text(xBS(o) + 20, yBS(o) + 10, zBS(o) + 10,['BS', num2str(o)],'FontSize', 8);
     textBSAngle(o) = text(xBS(o)+10,yBS(o)+10,zBS(o)-5,['BS_{\theta_{',num2str(o),'}}'],'FontSize', 6);
 end
@@ -80,7 +80,7 @@ end
 % Plotting LoS Channel between BSs and UAVs
 for i = 1:noUAV
     for directBS = 1:noBS
-        plot3([xUAV(i) xBS(directBS)], [yUAV(i) yBS(directBS)],[zUAV(i) zBS(directBS)], 'b:','linewidth', 0.1); drawnow
+        plot3([xUAV(i) xBS(directBS)], [yUAV(i) yBS(directBS)],[zUAV(i) zBS(directBS)], 'k:','linewidth', 0.5); drawnow
     end
 end
 
@@ -89,13 +89,13 @@ end
 % Plotting LoS Channel between users and UAVs
 for i = 1:noUAV
     for directUsers = 1:noUsers
-        plot3([xUAV(i) xUser(directUsers)], [yUAV(i) yUser(directUsers)],[zUAV(i) zUser(directUsers)], 'r--','linewidth', 0.1); drawnow
+        plot3([xUAV(i) xUser(directUsers)], [yUAV(i) yUser(directUsers)],[zUAV(i) zUser(directUsers)], 'k-.','linewidth', 0.5); drawnow
     end
 end
 
 % Plotting UAV default path
 for i = 1:noUAV
-    plot3([xUAV_S(i) xUAV_E(i)], [yUAV_S(i) yUAV_E(i)],[zUAV_S(i) zUAV_E(i)], 'y--','linewidth', 2); drawnow
+    plot3([xUAV_S(i) xUAV_E(i)], [yUAV_S(i) yUAV_E(i)],[zUAV_S(i) zUAV_E(i)], 'y--','linewidth', 0.5); drawnow
 end
 
 mx = (zUAV_S - zUAV_E)/(yUAV_S - yUAV_E);
@@ -104,8 +104,8 @@ c = zUAV_S - mx*yUAV_S;
 %eqY = m*x + c;
 
 % 3D Plot labels
-xlim([0 2050])
-ylim([0 2050])
+xlim([0 1050])
+ylim([0 1050])
 zlim([0 320])
 xlabel('Width (m)');
 ylabel('Length (m)');
@@ -135,11 +135,11 @@ g = sqrt(1/2)*(randn(1,1)+1i*randn(1,1));
 
 %% Simulation
 
-for j = enLength:-100:0
+for j = enLength:-50:0
     for i=1:noUAV
         zUAV(i) = mx*j + c;
         yUAV(i) = j;
-        plot3(xUAV(i),  yUAV(i),  zUAV(i), 'gh','linewidth', 1);hold on;
+        plot3(xUAV(i),  yUAV(i),  zUAV(i), 'r+','linewidth', 0.5);hold on;
 
         % LoS distance between UAVs and BSs
         for bm=1:noBS
@@ -215,9 +215,9 @@ for j = enLength:-100:0
         % Achievable Rate Calculations for Users in SWIPT model
         [achievableRate_ch_SWIPT(index,:), achievableRate_fr_SWIPT(index,:)] = findAchievableRate_SWIPT(h_UAV_Users(index,i,:),h_UAV_BS(index,i,:),pow_coef_array_ch(index,:),pow_coef_array_fr(index,:),noUsers);
         
-        minRate = min(achievableRate_ch(index,:));
+        minRate = min(achievableRate_ch(index,:))
         if index>1 && index<21
-            updatedPosition = positionUpdate_PSO(xUAV(i),yUAV(i),zUAV(i),minRate,noUsers,xUser,yUser);
+            updatedPosition = positionUpdate_PSO(xUAV(i),yUAV(i),zUAV(i),minRate,noUsers,xUser,yUser,g);
             up_xUAV(index,i) = xUAV(i) + updatedPosition.position(1);
             up_zUAV(index,i) = zUAV(i) + updatedPosition.position(2);
             up_yUAV(index,i) = yUAV(i);
@@ -226,10 +226,10 @@ for j = enLength:-100:0
             up_yUAV(index,i) = yUAV(i);
             up_zUAV(index,i) = zUAV(i);
         end
-        plot3(up_xUAV(index,i),  up_yUAV(index,i),  up_zUAV(index,i), 'bh','linewidth', 1);hold on;
+        plot3(up_xUAV(index,i),  up_yUAV(index,i),  up_zUAV(index,i), 'gh','linewidth', 0.5);hold on;
         
         if index>1 
-            plot3([up_xUAV(index-1,i) up_xUAV(index,i)], [up_yUAV(index-1,i) up_yUAV(index,i)],[up_zUAV(index-1,i) up_zUAV(index,i)], 'g:','linewidth', 2); drawnow
+            plot3([up_xUAV(index-1,i) up_xUAV(index,i)], [up_yUAV(index-1,i) up_yUAV(index,i)],[up_zUAV(index-1,i) up_zUAV(index,i)], 'g--','linewidth', 0.5); drawnow
         end
        % updatedPosition.minRate
         % LoS distance between UAVs and BSs
@@ -305,7 +305,8 @@ for j = enLength:-100:0
         % Achievable Rate Calculations for Users in SWIPT model
         [achievableRate_ch_SWIPT_Up(index,:), achievableRate_fr_SWIPT_Up(index,:)] = findAchievableRate_SWIPT(h_UAV_Users_Up(index,i,:),h_UAV_BS_Up(index,i,:),pow_coef_array_ch_Up(index,:),pow_coef_array_fr_Up(index,:),noUsers);
         
-    
+        minAchRate(index) = min(achievableRate_ch(index,:));
+        minAchRate_Up(index) = min(achievableRate_ch_Up(index,:));
     
     end
     index = index +1;
@@ -316,9 +317,9 @@ end
 % PLoS for Users
 steps = 1:21;
 figure;
-plot(steps,PLoS(:,1,1),'m-','linewidth', 1);hold on;
-plot(steps,PLoS(:,1,2),'g-','linewidth', 1);
-plot(steps,PLoS(:,1,3),'c-','linewidth', 1);
+plot(steps,PLoS(:,1,1),'k--^','linewidth', 1);hold on;
+plot(steps,PLoS(:,1,2),'k--square','linewidth', 1);
+plot(steps,PLoS(:,1,3),'k--diamond','linewidth', 1);
 
 title('Line of Sight Probablility between UAV and GUs in each Step')
 xlabel('Steps')
@@ -383,7 +384,7 @@ xlim([1 21])
 legend('BS 1 (LoS)', 'BS 2 (LoS)', 'BS 3 (LoS)', 'BS 1 (LoS)', 'BS 2 (LoS)', 'BS 3 (LoS)');
 grid on;
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Channel power Users
 figure;
 plot(steps,E_bd_dB(:,1,1),'m-^','linewidth', 1);hold on;
@@ -402,6 +403,7 @@ xlim([1 21])
 legend('User 1 (Path Loss Model)', 'User 2 (Path Loss Model)', 'User 3 (Path Loss Model)', 'User 1 (Rician Channel Model)', 'User 2 (Rician Channel Model)', 'User 3 (Rician Channel Model)');
 grid on;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Channel power BSs
 figure;
 plot(steps,E_bd_dB_BS(:,1,1),'m--^','linewidth', 1);hold on;
@@ -420,7 +422,7 @@ xlim([1 21])
 legend('BS 1 (Path Loss Model)', 'BS 2 (Path Loss Model)', 'BS 3 (Path Loss Model)', 'BS 1 (Rician Channel Model)', 'BS 2 (Rician Channel Model)', 'BS 3 (Rician Channel Model)');
 grid on;
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Achievable rate for Users
 figure;
 plot(steps,achievableRate_ch(:,1),'m^--','linewidth', 1);hold on;
@@ -434,10 +436,12 @@ plot(steps,achievableRate_ch_Up(:,3),'k-^','linewidth', 1);
 title('Achievable Rate for GUs in each Step (With Channel based Power Coefficeints)')
 xlim([1 21])
 %ylim([0 1])
+xlabel('Steps')
+ylabel('Achievable Rate in bps')
 legend('User 1', 'User 2', 'User 3','User 1 (Optimized)', 'User 2 (Optimized)', 'User 3 (Optimized)');
 grid on;
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure
 plot(steps,achievableRate_fr(:,1),'m^--','linewidth', 1);hold on;
 plot(steps,achievableRate_fr(:,2),'g^--','linewidth', 1);
@@ -450,6 +454,8 @@ plot(steps,achievableRate_fr_Up(:,3),'k^-','linewidth', 1);
 title('Achievable Rate for GUs in each Step (With Fraction value based Power Coefficeints)')
 xlim([1 21])
 %ylim([0 1])
+xlabel('Steps')
+ylabel('Achievable Rate in bps')
 legend('User 1', 'User 2', 'User 3','User 1 (Optimized)', 'User 2 (Optimized)', 'User 3 (Optimized)');
 grid on;
 
@@ -469,26 +475,54 @@ grid on;
 % legend('BS 1', 'BS 2', 'BS 3','BS 1 Up', 'BS 2 Up', 'BS 3 Up');
 % grid on;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Achievable rate for Users SWIPT Model
 figure;
-plot(steps,achievableRate_ch_SWIPT(:,1),'*--','linewidth', 1);hold on;
-plot(steps,achievableRate_ch_SWIPT(:,2),'*--','linewidth', 1);
-plot(steps,achievableRate_ch_SWIPT(:,3),'*--','linewidth', 1);
+plot(steps,achievableRate_ch_SWIPT(:,1),'m--^','linewidth', 1);hold on;
+plot(steps,achievableRate_ch_SWIPT(:,2),'g--^','linewidth', 1);
+plot(steps,achievableRate_ch_SWIPT(:,3),'c--^','linewidth', 1);
 
-plot(steps,achievableRate_ch_SWIPT_Up(:,1),'*-','linewidth', 1);hold on;
-plot(steps,achievableRate_ch_SWIPT_Up(:,2),'*-','linewidth', 1);
-plot(steps,achievableRate_ch_SWIPT_Up(:,3),'*-','linewidth', 1);
+plot(steps,achievableRate_ch_SWIPT_Up(:,1),'b*-','linewidth', 1);hold on;
+plot(steps,achievableRate_ch_SWIPT_Up(:,2),'r*-','linewidth', 1);
+plot(steps,achievableRate_ch_SWIPT_Up(:,3),'k*-','linewidth', 1);
 
-plot(steps,achievableRate_fr_SWIPT(:,1),'^--','linewidth', 1);hold on;
-plot(steps,achievableRate_fr_SWIPT(:,2),'^--','linewidth', 1);
-plot(steps,achievableRate_fr_SWIPT(:,3),'^--','linewidth', 1);
-
-plot(steps,achievableRate_fr_SWIPT_Up(:,1),'^-','linewidth', 1);hold on;
-plot(steps,achievableRate_fr_SWIPT_Up(:,2),'^-','linewidth', 1);
-plot(steps,achievableRate_fr_SWIPT_Up(:,3),'^-','linewidth', 1);
-
+title('Achievable Rate for GUs in each Step in SWIPT Model (With Channel based Power Coefficeints)')
 xlim([1 21])
 %ylim([0 1])
-legend('U 1', 'U 2', 'U 3','U 1 up', 'U 2 up', 'U 3 up','U 1 fr', 'U 2 fr', 'U 3 fr','U 1 fr Up', 'U 2 fr up', 'U 3 fr up');
+xlabel('Steps')
+ylabel('Achievable Rate in bps')
+legend('User 1', 'User 2', 'User 3','User 1 (Optimized)', 'User 2 (Optimized)', 'User 3 (Optimized)');
+grid on;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure;
+plot(steps,achievableRate_fr_SWIPT(:,1),'m^--','linewidth', 1);hold on;
+plot(steps,achievableRate_fr_SWIPT(:,2),'g^--','linewidth', 1);
+plot(steps,achievableRate_fr_SWIPT(:,3),'c^--','linewidth', 1);
+
+plot(steps,achievableRate_fr_SWIPT_Up(:,1),'b^-','linewidth', 1);hold on;
+plot(steps,achievableRate_fr_SWIPT_Up(:,2),'r^-','linewidth', 1);
+plot(steps,achievableRate_fr_SWIPT_Up(:,3),'k^-','linewidth', 1);
+
+title('Achievable Rate for GUs in each Step in SWIPT Model (With Fraction value based Power Coefficeints)')
+xlim([1 21])
+%ylim([0 1])
+xlabel('Steps')
+ylabel('Achievable Rate in bps')
+legend('User 1', 'User 2', 'User 3','User 1 (Optimized)', 'User 2 (Optimized)', 'User 3 (Optimized)');
+grid on;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure;
+plot(steps,minAchRate(:),'m^--','linewidth', 1);hold on;
+
+plot(steps,minAchRate_Up(:),'c^-','linewidth', 1);
+
+title('Minimum Achievable Rate of Network in each Step (With Channel based based Power Coefficeints)')
+xlim([1 21])
+%ylim([0 1])
+xlabel('Steps')
+ylabel('Achievable Rate in bps')
+legend('Minimum Rate (before Optimized)', 'Minimum Rate (After Optimized)');
 grid on;
