@@ -133,17 +133,21 @@ end
 %% Plot
 
 figure;
-plot(Pt,C1_mean,'-^','linewidth',1); hold on; grid on;
-plot(Pt,C2_mean,'-^','linewidth',1);
-plot(Pt,C3_mean,'-^','linewidth',1);
+plot(Pt,C1_mean,'c-^','linewidth',1.1); hold on; grid on;
+plot(Pt,C2_mean,'m-square','linewidth',1.1);
+plot(Pt,C3_mean,'g-diamond','linewidth',1.1);
 
-plot(Pt,C1_mean_f,'-square','linewidth',1); hold on; grid on;
-plot(Pt,C2_mean_f,'-square','linewidth',1);
-plot(Pt,C3_mean_f,'-square','linewidth',1);
+plot(Pt,C1_mean_f,'c--^','linewidth',1.1); hold on; grid on;
+plot(Pt,C2_mean_f,'m--square','linewidth',1.1);
+plot(Pt,C3_mean_f,'g--diamond','linewidth',1.1);
 
-plot(Pt,C1_mean_vf,'-pentagram','linewidth',1); hold on; grid on;
-plot(Pt,C2_mean_vf,'-pentagram','linewidth',1);
-plot(Pt,C3_mean_vf,'-pentagram','linewidth',1);
+plot(Pt,C1_mean_vf,'c:^','linewidth',1.1); hold on; grid on;
+plot(Pt,C2_mean_vf,'m:square','linewidth',1.1);
+plot(Pt,C3_mean_vf,'g:diamond','linewidth',1.1);
+
+title('Achievable Rate for GUs in different Power Coefficeint Allocation Schemes')
+ylabel('Achievable Rate in bps')
+xlabel('Transmit Power in dBm')
 
 legend({'User1 - Near User (Channel gain based power coefficent allocation)','User2 - Middle User (Channel gain based power coefficent allocation)','User3 - Far User (Channel gain based power coefficient allocation)','User1 - Near User (Fraction power coefficeint allocation)','User2 - Middle User (Fraction power coefficeint allocation)','User3 - Far User (Fraction power coefficeint allocation)','User1 - Near User (Fixed power coefficeint allocation)','User2 - Middle User (Fixed power coefficeint allocation)','NOMA User3 - Far User (Fixed power coefficeint allocation)'},'location','northwest');
 
