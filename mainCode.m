@@ -146,7 +146,7 @@ for j = enLength:-100:0
             groundDisUAV_BS(i,bm) = sqrt((xUAV(i)-xBS(bm))^2 + (yUAV(i)-yBS(bm))^2);
             DisUAV_BS(i,bm) = sqrt(groundDisUAV_BS(i,bm)^2 + (zBS(bm)-zUAV(i))^2);
             
-            % Elavation Angle in radiant between UAVs and Users
+            % Elavation Angle in radiant between UAVs and BS
             angleUAV_BS(i,bm) = atan(abs(zBS(bm)-zUAV(i))/groundDisUAV_BS(i,bm))*(180/pi);
             
             PLoS_BS(index,i,bm) = 1/(1+(10*exp(-0.6*(angleUAV_BS(i,bm)-10))));
